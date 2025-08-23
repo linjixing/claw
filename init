@@ -37,48 +37,48 @@ if [ ! -d "/home/supervisord.conf" ]; then
     chmod g+w /home/supervisord.conf
 fi
 
-if [ -z "$USER" ] || [ -z "$PASSWD" ]; then
-    USER="root"
-    HOME="/root"
-    TTYD_ARG="-t enableTrzsz=true -W bash"
-else
-    HOME="/home/$USER"
-    TTYD_ARG="-t enableTrzsz=true -c $USER:$PASSWD -W bash"
+# if [ -z "$USER" ] || [ -z "$PASSWD" ]; then
+#     USER="root"
+#     HOME="/root"
+#     TTYD_ARG="-t enableTrzsz=true -W bash"
+# else
+#     HOME="/home/$USER"
+#     TTYD_ARG="-t enableTrzsz=true -c $USER:$PASSWD -W bash"
 
-    useradd -s /bin/bash -d $HOME -G root,sudo $USER
-    echo "$USER:$PASSWD" | chpasswd
-    echo "$USER ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$USER
+#     useradd -s /bin/bash -d $HOME -G root,sudo $USER
+#     echo "$USER:$PASSWD" | chpasswd
+#     echo "$USER ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$USER
 
-    if [ ! -d "$HOME" ]; then
-        mkdir -p $HOME/.ssh
-        chmod 700 $HOME/.ssh
-        touch $HOME/.ssh/authorized_keys
-        chmod 600 $HOME/.ssh/authorized_keys
-        cp /root/.bashrc $HOME
-        chown $USER:$USER -R $HOME
-    fi
+#     if [ ! -d "$HOME" ]; then
+#         mkdir -p $HOME/.ssh
+#         chmod 700 $HOME/.ssh
+#         touch $HOME/.ssh/authorized_keys
+#         chmod 600 $HOME/.ssh/authorized_keys
+#         cp /root/.bashrc $HOME
+#         chown $USER:$USER -R $HOME
+#     fi
 
-    if [ -n "$RSA" ] && ! grep -qF "$RSA" $HOME/.ssh/authorized_keys; then
-        echo "$RSA" >> $HOME/.ssh/authorized_keys
-    fi
-fi
+#     if [ -n "$RSA" ] && ! grep -qF "$RSA" $HOME/.ssh/authorized_keys; then
+#         echo "$RSA" >> $HOME/.ssh/authorized_keys
+#     fi
+# fi
 
 cat > /home/supervisord.conf/ttyd.conf << EOF
 [program:ttyd]
-command=/usr/bin/ttyd $TTYD_ARG
+command=/usr/bin/ttyd -t enableTrzsz=true -W bash
 directory=$HOME
 stdout_logfile=/tmp/ttyd.log
 stderr_logfile=/tmp/ttyd.log
 autostart=true
 autorestart=true
-user=$USER
 EOF
 
-env | sed -E '/^(_|PATH|USER|HOME|PWD|SHLVL|HOSTNAME|TERM|LOGNAME|RSA)=/d' | \
-while IFS= read -r line; do
-    if ! grep -qF "export ${line%%=*}" /root/.bashrc; then
-        echo "export $line" >> /root/.bashrc
-    fi
-done
+# 将环境变量加入/root/.bashrc
+# env | sed -E '/^(_|PATH|USER|HOME|PWD|SHLVL|HOSTNAME|TERM|LOGNAME|RSA)=/d' | \
+# while IFS= read -r line; do
+#     if ! grep -qF "export ${line%%=*}" /root/.bashrc; then
+#         echo "export $line" >> /root/.bashrc
+#     fi
+# done
 
 exec "$@"

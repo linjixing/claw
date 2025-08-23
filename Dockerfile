@@ -6,7 +6,7 @@ COPY init /usr/bin
 
 RUN export DEBIAN_FRONTEND=noninteractive; \
     apt-get update; \
-    apt-get install -y ca-certificates curl wget net-tools unzip tzdata vim screen sudo supervisor openssh-server --no-install-recommends; \
+    apt-get install -y ca-certificates curl wget net-tools unzip tzdata vim screen supervisor --no-install-recommends; \
     apt-get clean; \
     rm -rf /var/lib/apt/lists/*; \
     ln -snf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime; \
