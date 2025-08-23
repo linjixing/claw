@@ -1,5 +1,15 @@
 #!/usr/bin/env sh
 
+if [ ! -d "/home/bin" ]; then
+    mkdir /home/bin
+    chmod g+w /home/bin
+fi
+
+if [ ! -d "/home/conf" ]; then
+    mkdir /home/conf
+    chmod g+w /home/conf
+fi
+
 cat > /etc/supervisor/supervisord.conf << EOF
 [unix_http_server]
 file=/var/run/supervisor.sock
@@ -24,7 +34,7 @@ EOF
 
 if [ ! -d "/home/supervisord.conf" ]; then
     mkdir /home/supervisord.conf
-    chmod a+w /home/supervisord.conf
+    chmod g+w /home/supervisord.conf
 fi
 
 if [ -z "$USER" ] || [ -z "$PASSWD" ]; then
@@ -35,10 +45,9 @@ else
     HOME="/home/$USER"
     TTYD_ARG="-t enableTrzsz=true -c $USER:$PASSWD -W bash"
 
-    useradd -s /bin/bash -d $HOME -G sudo $USER
+    useradd -s /bin/bash -d $HOME -G root,sudo $USER
     echo "$USER:$PASSWD" | chpasswd
     echo "$USER ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$USER
-    usermod -aG root $USER
 
     if [ ! -d "$HOME" ]; then
         mkdir -p $HOME/.ssh
@@ -64,5 +73,12 @@ autostart=true
 autorestart=true
 user=$USER
 EOF
+
+env | sed -E '/^(_|PATH|USER|HOME|PWD|SHLVL|HOSTNAME|TERM|LOGNAME|RSA)=/d' | \
+while IFS= read -r line; do
+    if ! grep -qF "export ${line%%=*}" /root/.bashrc; then
+        echo "export $line" >> /root/.bashrc
+    fi
+done
 
 exec "$@"
