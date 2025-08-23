@@ -10,6 +10,11 @@ if [ ! -d "/home/conf" ]; then
     chmod g+w /home/conf
 fi
 
+if [ ! -d "/home/supervisord.conf" ]; then
+    mkdir /home/supervisord.conf
+    chmod g+w /home/supervisord.conf
+fi
+
 cat > /etc/supervisor/supervisord.conf << EOF
 [unix_http_server]
 file=/var/run/supervisor.sock
@@ -32,11 +37,7 @@ serverurl=unix:///var/run/supervisor.sock
 files = /home/supervisord.conf/*.conf
 EOF
 
-if [ ! -d "/home/supervisord.conf" ]; then
-    mkdir /home/supervisord.conf
-    chmod g+w /home/supervisord.conf
-fi
-
+# 以新用户身份登录
 # if [ -z "$USER" ] || [ -z "$PASSWD" ]; then
 #     USER="root"
 #     HOME="/root"
