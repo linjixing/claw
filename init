@@ -1,37 +1,31 @@
 #!/usr/bin/env sh
 
 cat > /etc/supervisor/supervisord.conf << EOF
-; supervisor config file
-
 [unix_http_server]
-file=/var/run/supervisor.sock   ; (the path to the socket file)
-chmod=0700                       ; sockef file mode (default 0700)
+file=/var/run/supervisor.sock
+chmod=0700
 
 [supervisord]
 nodaemon=true
 user=root
-logfile=/tmp/supervisord.log ; (main log file;default /supervisord.log)
-pidfile=/var/run/supervisord.pid ; (supervisord pidfile;default supervisord.pid)
-childlogdir=/tmp            ; ('AUTO' child log dir, default )
+logfile=/tmp/supervisord.log
+pidfile=/var/run/supervisord.pid
+childlogdir=/tmp
 
-; the below section must remain in the config file for RPC
-; (supervisorctl/web interface) to work, additional interfaces may be
-; added by defining them in separate rpcinterface: sections
 [rpcinterface:supervisor]
 supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
 
 [supervisorctl]
-serverurl=unix:///var/run/supervisor.sock ; use a unix:// URL  for a unix socket
-
-; The [include] section can just contain the "files" setting.  This
-; setting can list multiple files (separated by whitespace or
-; newlines).  It can also contain wildcards.  The filenames are
-; interpreted as relative to this file.  Included files *cannot*
-; include files themselves.
+serverurl=unix:///var/run/supervisor.sock
 
 [include]
 files = /home/supervisord.conf/*.conf
 EOF
+
+if [ ! -d "/home/supervisord.conf" ]; then
+    mkdir /home/supervisord.conf
+    chmod a+w /home/supervisord.conf
+fi
 
 if [ -z "$USER" ] || [ -z "$PASSWD" ]; then
     USER="root"
@@ -60,9 +54,7 @@ else
     fi
 fi
 
-if [ ! -d "/home/supervisord.conf" ]; then
-    mkdir /home/supervisord.conf
-    cat > /home/supervisord.conf/ttyd.conf << EOF
+cat > /home/supervisord.conf/ttyd.conf << EOF
 [program:ttyd]
 command=/usr/bin/ttyd $TTYD_ARG
 directory=$HOME
@@ -72,7 +64,5 @@ autostart=true
 autorestart=true
 user=$USER
 EOF
-    chmod a+w -R /home/supervisord.conf
-fi
 
 exec "$@"
