@@ -2,19 +2,16 @@ FROM ubuntu:22.04
 
 LABEL org.opencontainers.image.source=https://github.com/linjixing/claw
 
-COPY entrypoint.sh /
+COPY init /usr/bin
 
 RUN export DEBIAN_FRONTEND=noninteractive; \
     apt-get update; \
-    apt-get install -y ca-certificates curl wget git unzip openssh-server cron sudo tzdata vim \
-    supervisor nginx screen net-tools iproute2 dnsutils iputils-ping --no-install-recommends; \
+    apt-get install -y ca-certificates curl wget net-tools unzip tzdata vim screen sudo supervisor openssh-server --no-install-recommends; \
     apt-get clean; \
     rm -rf /var/lib/apt/lists/*; \
-    mkdir /var/run/sshd; \
-    echo "alias ll='ls -la'" >> /etc/bash.bashrc; \
-    echo "alias reboot='sudo kill -SIGTERM 1'" >> /etc/bash.bashrc; \
-    echo 'termcapinfo xterm* ti@:te@' >> /etc/screenrc; \
     ln -snf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime; \
+    echo "shell /bin/bash" >> /etc/screenrc; \
+    echo "termcapinfo xterm* ti@:te@" >> /etc/screenrc; \
     echo "Asia/Shanghai" > /etc/timezone; \
     echo "set fileencodings=utf-8,gbk,utf-16le,cp1252,iso-8859-15,ucs-bom" >> /etc/vim/vimrc; \
     echo "set termencoding=utf-8" >> /etc/vim/vimrc; \
@@ -24,9 +21,9 @@ RUN export DEBIAN_FRONTEND=noninteractive; \
     mv trzsz_1.1.8_linux_x86_64/* /usr/local/bin/; \
     rm -rf trzsz_1.1.8_linux_x86_64*; \
     curl -Lo /usr/bin/ttyd https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.x86_64; \
-    chmod +x /usr/bin/ttyd; \
-    chmod +x /entrypoint.sh
+    chmod +x /usr/bin/ttyd;\
+    chmod +x /usr/bin/init
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["init"]
 
-CMD ["supervisord","-c","/etc/supervisord.conf"]
+CMD [ "/usr/bin/supervisord","-c","/etc/supervisor/supervisord.conf" ]
