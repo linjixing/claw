@@ -4,6 +4,7 @@
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
 HISTSIZE=10000
 HISTFILESIZE=20000
+HISTCONTROL=ignoreboth
 
 # set a fancy prompt (non-color, unless we know we "want" color)
 PS1='\[\033[01;34m\]\u\[\033[00m\]:\[\033[01;35m\]\w\[\033[00m\]\[\033[01;31m\] \$ \[\033[00m\]'
@@ -21,12 +22,12 @@ alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
 EOF && chmod g+w /home/.bashrc
 
-dirs=("/home/bin" "/home/conf" "/home/supervisord.conf")
+dirs=("/home/bin" "/home/conf" "/home/supervisord")
 for dir in "${dirs[@]}"; do
     [ ! -d "$dir" ] && mkdir -p "$dir" && chmod g+w "$dir"
 done
 
-cat > /etc/supervisor/supervisord.conf << EOF
+cat > /etc/supervisor/supervisord << EOF
 [unix_http_server]
 file=/var/run/supervisor.sock
 chmod=0700
@@ -45,7 +46,7 @@ supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
 serverurl=unix:///var/run/supervisor.sock
 
 [include]
-files = /home/supervisord.conf/*.conf
+files = /home/supervisord/*.conf
 EOF
 
 if [ -z "$USER" ] || [ -z "$PASSWD" ]; then
@@ -78,7 +79,7 @@ else
     fi
 fi
 
-cat > /home/supervisord.conf/ttyd.conf << EOF
+cat > /home/supervisord/ttyd.conf << EOF
 [program:ttyd]
 stdout_logfile=/tmp/ttyd.log
 stderr_logfile=/tmp/ttyd.log
