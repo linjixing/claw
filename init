@@ -28,8 +28,8 @@ fi
 EOF
 fi
 
-if [ ! -f "/home/.bashrc" ]; then
-    cat > /home/.bashrc << EOF
+if [ ! -f "/home/.bash_aliases" ]; then
+    cat > /home/.bash_aliases << EOF
 alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
