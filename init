@@ -27,7 +27,7 @@ for dir in "${dirs[@]}"; do
     [ ! -d "$dir" ] && mkdir -p "$dir" && chmod g+w "$dir"
 done
 
-cat > /etc/supervisor/supervisord << EOF
+cat > /etc/supervisor/supervisord.conf << EOF
 [unix_http_server]
 file=/var/run/supervisor.sock
 chmod=0700
