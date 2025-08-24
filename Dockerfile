@@ -10,7 +10,6 @@ RUN export DEBIAN_FRONTEND=noninteractive; \
     apt-get clean; \
     rm -rf /var/lib/apt/lists/*; \
     ln -snf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime; \
-    echo "alias mem='ps aux | awk \"{sum += \\\$6} END {print int(sum/1024) \\\" MB\\\"}\"'" >> /etc/bash.bashrc; \
     echo "[ -f /home/.bashrc ] && . /home/.bashrc" >> /root/.bashrc; \
     echo "shell /bin/bash" >> /etc/screenrc; \
     echo "termcapinfo xterm* ti@:te@" >> /etc/screenrc; \
@@ -23,7 +22,7 @@ RUN export DEBIAN_FRONTEND=noninteractive; \
     mv trzsz_1.1.8_linux_x86_64/* /usr/local/bin/; \
     rm -rf trzsz_1.1.8_linux_x86_64*; \
     curl -Lo /usr/bin/ttyd https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.x86_64; \
-    chmod +x /usr/bin/ttyd;\
+    chmod +x /usr/bin/ttyd; \
     chmod +x /usr/bin/init
 
 ENTRYPOINT ["init"]
