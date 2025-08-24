@@ -1,5 +1,50 @@
 #!/usr/bin/env sh
 
+if [ ! -f "/home/.bashrc" ]; then
+    cat > /home/.bashrc << EOF
+# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
+HISTSIZE=10000
+HISTFILESIZE=20000
+
+# set a fancy prompt (non-color, unless we know we "want" color)
+case "$TERM" in
+    xterm-color|*-256color) color_prompt=yes;;
+esac
+
+if [ "$color_prompt" = yes ]; then
+    PS1='\[\033[01;32m\]\u\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+else
+    PS1='\u:\w\$ '
+fi
+
+unset color_prompt
+
+# enable color support of ls and also add handy aliases
+if [ -x /usr/bin/dircolors ]; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    alias ls='ls --color=auto'
+    #alias dir='dir --color=auto'
+    #alias vdir='vdir --color=auto'
+
+    alias grep='grep --color=auto'
+    alias fgrep='fgrep --color=auto'
+    alias egrep='egrep --color=auto'
+fi
+
+# some more ls aliases
+if [ -f /home/.bash_aliases ]; then
+    . /home/.bash_aliases
+fi
+EOF
+
+if [ ! -f "/home/.bashrc" ]; then
+    cat > /home/.bashrc << EOF
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+EOF
+fi
+
 if [ ! -d "/home/bin" ]; then
     mkdir /home/bin
     chmod g+w /home/bin
@@ -37,41 +82,45 @@ serverurl=unix:///var/run/supervisor.sock
 files = /home/supervisord.conf/*.conf
 EOF
 
-# 以新用户身份登录
-# if [ -z "$USER" ] || [ -z "$PASSWD" ]; then
-#     USER="root"
-#     HOME="/root"
-#     TTYD_ARG="-t enableTrzsz=true -W bash"
-# else
-#     HOME="/home/$USER"
-#     TTYD_ARG="-t enableTrzsz=true -c $USER:$PASSWD -W bash"
+if [ -z "$USER" ] || [ -z "$PASSWD" ]; then
+    USER="root"
+    HOME="/root"
+    TTYD_ARG="-t enableTrzsz=true"
+else
+    HOME="/home/$USER"
+    TTYD_ARG="-t enableTrzsz=true -c $USER:$PASSWD"
 
-#     useradd -s /bin/bash -d $HOME -G root,sudo $USER
-#     echo "$USER:$PASSWD" | chpasswd
-#     echo "$USER ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$USER
+    useradd -s /bin/bash -d $HOME -G root,sudo $USER
+    echo "$USER:$PASSWD" | chpasswd
+    echo "$USER ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$USER
 
-#     if [ ! -d "$HOME" ]; then
-#         mkdir -p $HOME/.ssh
-#         chmod 700 $HOME/.ssh
-#         touch $HOME/.ssh/authorized_keys
-#         chmod 600 $HOME/.ssh/authorized_keys
-#         cp /root/.bashrc $HOME
-#         chown $USER:$USER -R $HOME
-#     fi
+    if [ ! -d "$HOME" ]; then
+        cat > $HOME/.bashrc << EOF
+if [ -f /home/.bashrc ]; then
+    . /home/.bashrc
+fi
+EOF
+        mkdir -p $HOME/.ssh
+        chmod 700 $HOME/.ssh
+        touch $HOME/.ssh/authorized_keys
+        chmod 600 $HOME/.ssh/authorized_keys
+        chown $USER:$USER -R $HOME
+    fi
 
-#     if [ -n "$RSA" ] && ! grep -qF "$RSA" $HOME/.ssh/authorized_keys; then
-#         echo "$RSA" >> $HOME/.ssh/authorized_keys
-#     fi
-# fi
+    if [ -n "$RSA" ] && ! grep -qF "$RSA" $HOME/.ssh/authorized_keys; then
+        echo "$RSA" >> $HOME/.ssh/authorized_keys
+    fi
+fi
 
 cat > /home/supervisord.conf/ttyd.conf << EOF
 [program:ttyd]
-command=/usr/bin/ttyd -t enableTrzsz=true -W bash
-directory=$HOME
 stdout_logfile=/tmp/ttyd.log
 stderr_logfile=/tmp/ttyd.log
 autostart=true
 autorestart=true
+command=/usr/bin/ttyd $TTYD_ARG -W bash
+directory=$HOME
+user=$USER
 EOF
 
 # 将环境变量加入/root/.bashrc

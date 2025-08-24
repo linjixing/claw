@@ -6,10 +6,11 @@ COPY init /usr/bin
 
 RUN export DEBIAN_FRONTEND=noninteractive; \
     apt-get update; \
-    apt-get install -y ca-certificates curl wget net-tools unzip tzdata vim screen supervisor --no-install-recommends; \
+    apt-get install -y ca-certificates curl wget net-tools unzip tzdata vim sudo cron screen supervisor openssh-server --no-install-recommends; \
     apt-get clean; \
     rm -rf /var/lib/apt/lists/*; \
     ln -snf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime; \
+    echo "alias mem='ps aux | awk '\''{sum += \$6} END {print sum/1024 \" MB\"}'\''" >> /etc/bash.bashrc
     echo "shell /bin/bash" >> /etc/screenrc; \
     echo "termcapinfo xterm* ti@:te@" >> /etc/screenrc; \
     echo "Asia/Shanghai" > /etc/timezone; \
