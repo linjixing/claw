@@ -7,17 +7,7 @@ HISTSIZE=10000
 HISTFILESIZE=20000
 
 # set a fancy prompt (non-color, unless we know we "want" color)
-case "$TERM" in
-    xterm-color|*-256color) color_prompt=yes;;
-esac
-
-if [ "$color_prompt" = yes ]; then
-    PS1='\[\033[01;32m\]\u\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
-else
-    PS1='\u:\w\$ '
-fi
-
-unset color_prompt
+PS1='\[\033[01;34m\]\u\[\033[00m\]:\[\033[01;35m\]\w\[\033[00m\]\[\033[01;31m\] \$ \[\033[00m\]'
 
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
@@ -36,6 +26,7 @@ if [ -f /home/.bash_aliases ]; then
     . /home/.bash_aliases
 fi
 EOF
+fi
 
 if [ ! -f "/home/.bashrc" ]; then
     cat > /home/.bashrc << EOF
@@ -95,15 +86,15 @@ else
     echo "$USER ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$USER
 
     if [ ! -d "$HOME" ]; then
+        mkdir -p $HOME/.ssh
+        chmod 700 $HOME/.ssh
+        touch $HOME/.ssh/authorized_keys
+        chmod 600 $HOME/.ssh/authorized_keys
         cat > $HOME/.bashrc << EOF
 if [ -f /home/.bashrc ]; then
     . /home/.bashrc
 fi
 EOF
-        mkdir -p $HOME/.ssh
-        chmod 700 $HOME/.ssh
-        touch $HOME/.ssh/authorized_keys
-        chmod 600 $HOME/.ssh/authorized_keys
         chown $USER:$USER -R $HOME
     fi
 
