@@ -12,33 +12,16 @@ PS1='\[\033[01;34m\]\u\[\033[00m\]:\[\033[01;35m\]\w\[\033[00m\]\[\033[01;31m\] 
 # allow sudo to use completion from the current user's shell environment
 complete -cf sudo
 
-# enable color support of ls and also add handy aliases
-if [ -x /usr/bin/dircolors ]; then
-    eval "$(dircolors -b)"
-    alias ls='ls --color=auto'
-    #alias dir='dir --color=auto'
-    #alias vdir='vdir --color=auto'
-
-    alias grep='grep --color=auto'
-    alias fgrep='fgrep --color=auto'
-    alias egrep='egrep --color=auto'
-fi
-
-# some more aliases
-if [ -f /home/.bash_aliases ]; then
-    . /home/.bash_aliases
-fi
-EOF
-    chmod g+w /home/.bashrc
-fi
-
-if [ ! -f "/home/.bash_aliases" ]; then
-    cat > /home/.bash_aliases << EOF
+# some aliases
+alias ls='ls --color=auto'
 alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
 EOF
-    chmod g+w /home/.bash_aliases
+    chmod g+w /home/.bashrc
 fi
 
 if [ ! -d "/home/bin" ]; then

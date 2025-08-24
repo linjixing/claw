@@ -10,6 +10,7 @@ RUN export DEBIAN_FRONTEND=noninteractive; \
     apt-get clean; \
     rm -rf /var/lib/apt/lists/*; \
     ln -snf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime; \
+    echo "[ -f /home/.bashrc ] && . /home/.bashrc" >> /etc/bash.bashrc; \
     echo "alias mem='ps aux | awk \"{sum += \\\$6} END {print int(sum/1024) \\\" MB\\\"}\"'" >> /etc/bash.bashrc; \
     echo "shell /bin/bash" >> /etc/screenrc; \
     echo "termcapinfo xterm* ti@:te@" >> /etc/screenrc; \
