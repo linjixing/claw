@@ -21,11 +21,15 @@ if [ -x /usr/bin/dircolors ]; then
     alias egrep='egrep --color=auto'
 fi
 
-# some more ls aliases
+# allow sudo to use completion from the current user's shell environment
+complete -cf sudo
+
+# some more aliases
 if [ -f /home/.bash_aliases ]; then
     . /home/.bash_aliases
 fi
 EOF
+    chmod g+w /home/.bashrc
 fi
 
 if [ ! -f "/home/.bash_aliases" ]; then
@@ -34,6 +38,7 @@ alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
 EOF
+    chmod g+w /home/.bash_aliases
 fi
 
 if [ ! -d "/home/bin" ]; then
