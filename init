@@ -22,10 +22,9 @@ alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
 EOF && chmod g+w /home/.bashrc
 
-dirs=("/home/bin" "/home/conf" "/home/supervisord")
-for dir in "${dirs[@]}"; do
-    [ ! -d "$dir" ] && mkdir -p "$dir" && chmod g+w "$dir"
-done
+[ ! -d /home/bin ] && mkdir /home/bin && chmod g+w /home/bin
+[ ! -d /home/conf ] && mkdir /home/conf && chmod g+w /home/conf
+[ ! -d /home/supervisord ] && mkdir /home/supervisord && chmod g+w /home/supervisord
 
 cat > /etc/supervisor/supervisord.conf << EOF
 [unix_http_server]
