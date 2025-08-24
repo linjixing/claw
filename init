@@ -9,9 +9,12 @@ HISTFILESIZE=20000
 # set a fancy prompt (non-color, unless we know we "want" color)
 PS1='\[\033[01;34m\]\u\[\033[00m\]:\[\033[01;35m\]\w\[\033[00m\]\[\033[01;31m\] \$ \[\033[00m\]'
 
+# allow sudo to use completion from the current user's shell environment
+complete -cf sudo
+
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
-    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    eval "$(dircolors -b)"
     alias ls='ls --color=auto'
     #alias dir='dir --color=auto'
     #alias vdir='vdir --color=auto'
@@ -20,9 +23,6 @@ if [ -x /usr/bin/dircolors ]; then
     alias fgrep='fgrep --color=auto'
     alias egrep='egrep --color=auto'
 fi
-
-# allow sudo to use completion from the current user's shell environment
-complete -cf sudo
 
 # some more aliases
 if [ -f /home/.bash_aliases ]; then
@@ -86,9 +86,13 @@ else
     HOME="/home/$USER"
     TTYD_ARG="-t enableTrzsz=true -c $USER:$PASSWD"
 
-    useradd -s /bin/bash -d $HOME -G root,sudo $USER
-    echo "$USER:$PASSWD" | chpasswd
-    echo "$USER ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$USER
+    echo "root:$PASSWD" | chpasswd
+    
+    if ! getent passwd $USER >/dev/null; then
+        useradd -s /bin/bash -d $HOME -G root,sudo $USER
+        echo "$USER:$PASSWD" | chpasswd
+        echo "$USER ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$USER
+    fi
 
     if [ ! -d "$HOME" ]; then
         mkdir -p $HOME/.ssh
