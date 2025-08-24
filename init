@@ -1,7 +1,6 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bssh
 
-if [ ! -f "/home/.bashrc" ]; then
-    cat > /home/.bashrc << EOF
+[ ! -f "/home/.bashrc" ] && cat > /home/.bashrc << EOF
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
 HISTSIZE=10000
 HISTFILESIZE=20000
@@ -21,24 +20,12 @@ alias l='ls -CF'
 alias grep='grep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
-EOF
-    chmod g+w /home/.bashrc
-fi
+EOF && chmod g+w /home/.bashrc
 
-if [ ! -d "/home/bin" ]; then
-    mkdir /home/bin
-    chmod g+w /home/bin
-fi
-
-if [ ! -d "/home/conf" ]; then
-    mkdir /home/conf
-    chmod g+w /home/conf
-fi
-
-if [ ! -d "/home/supervisord.conf" ]; then
-    mkdir /home/supervisord.conf
-    chmod g+w /home/supervisord.conf
-fi
+dirs=("/home/bin" "/home/conf" "/home/supervisord")
+for dir in "${dirs[@]}"; do
+    [ ! -d "$dir" ] && mkdir -p "$dir" && chmod g+w "$dir"
+done
 
 cat > /etc/supervisor/supervisord.conf << EOF
 [unix_http_server]
@@ -59,7 +46,7 @@ supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
 serverurl=unix:///var/run/supervisor.sock
 
 [include]
-files = /home/supervisord.conf/*.conf
+files = /home/supervisord/*.conf
 EOF
 
 if [ -z "$USER" ] || [ -z "$PASSWD" ]; then
@@ -92,7 +79,7 @@ else
     fi
 fi
 
-cat > /home/supervisord.conf/ttyd.conf << EOF
+cat > /home/supervisord/ttyd.conf << EOF
 [program:ttyd]
 stdout_logfile=/tmp/ttyd.log
 stderr_logfile=/tmp/ttyd.log
