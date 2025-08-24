@@ -1,4 +1,4 @@
-#!/usr/bin/env bssh
+#!/usr/bin/env bash
 
 [ ! -f "/home/.bashrc" ] && cat > /home/.bashrc << EOF
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
