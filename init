@@ -1,25 +1,11 @@
 #!/usr/bin/env bash
 
 [ ! -f "/home/.bashrc" ] && cat > /home/.bashrc << EOF && chmod g+w /home/.bashrc
-# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
-HISTSIZE=10000
-HISTFILESIZE=20000
-HISTCONTROL=ignoreboth
-
 # set a fancy prompt (non-color, unless we know we "want" color)
 PS1='\[\033[01;34m\]\u\[\033[00m\]:\[\033[01;35m\]\w\[\033[00m\]\[\033[01;31m\] $ \[\033[00m\]'
 
 # allow sudo to use completion from the current user's shell environment
 complete -cf sudo
-
-# some aliases
-alias ls='ls --color=auto'
-alias ll='ls -alF'
-alias la='ls -A'
-alias l='ls -CF'
-alias grep='grep --color=auto'
-alias fgrep='fgrep --color=auto'
-alias egrep='egrep --color=auto'
 EOF
 
 for dir in bin conf supervisord; do
@@ -49,6 +35,8 @@ files = /home/supervisord/*.conf
 EOF
 
 if [ -z "$UNAME" ] || [ -z "$PASSWD" ]; then
+    echo "root:password" | chpasswd
+
     cat > /home/supervisord/ttyd.conf << EOF
 [program:ttyd]
 stdout_logfile=/tmp/ttyd.log
@@ -57,41 +45,46 @@ autostart=true
 autorestart=true
 command=/usr/local/bin/ttyd -t enableTrzsz=true -c root:password -W bash
 directory=/root
-user=root
 EOF
-
-    echo "root:password" | chpasswd
 else
+    echo "root:$PASSWD" | chpasswd
+
+    if ! getent passwd $UNAME > /dev/null; then
+        useradd -m -s /bin/bash -G root,sudo $UNAME
+        echo "$UNAME ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$UNAME
+        echo "$UNAME:$PASSWD" | chpasswd
+        echo '[ -f "/home/.bashrc" ] && . /home/.bashrc' >> /home/$UNAME/.bashrc
+    fi
+
+    if [ -n "$RSA" ]; then
+        if [ ! -d "/home/$UNAME/.ssh" ]; then
+            mkdir -p /home/$UNAME/.ssh
+            chmod 700 /home/$UNAME/.ssh
+            chown $USER:$USER /home/$UNAME/.ssh
+        fi
+
+        if [ ! -f "/home/$UNAME/.ssh/authorized_keys" ]; then
+            touch /home/$UNAME/.ssh/authorized_keys
+            chmod 600 /home/$UNAME/.ssh/authorized_keys
+            chown $USER:$USER /home/$UNAME/.ssh/authorized_keys
+        fi
+
+        if [ ! grep -qF "$RSA" /home/$UNAME/.ssh/authorized_keys ]; then
+            echo "$RSA" >> /home/$UNAME/.ssh/authorized_keys
+        fi
+    fi
+
     cat > /home/supervisord/ttyd.conf << EOF
 [program:ttyd]
 stdout_logfile=/tmp/ttyd.log
 stderr_logfile=/tmp/ttyd.log
 autostart=true
 autorestart=true
+environment=HOME="/home/$UNAME"
 command=/usr/local/bin/ttyd -t enableTrzsz=true -c $UNAME:$PASSWD -W bash
 directory=/home/$UNAME
 user=$UNAME
 EOF
-
-    if ! getent passwd $UNAME > /dev/null; then
-        useradd -s /bin/bash -d "/home/$UNAME" -G root,sudo $UNAME
-        echo "$UNAME ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$UNAME
-        echo "$UNAME:$PASSWD" | chpasswd
-    fi
-
-    if [ ! -d "/home/$UNAME" ]; then
-        mkdir -p /home/$UNAME/.ssh
-        chmod 700 /home/$UNAME/.ssh
-        touch /home/$UNAME/.ssh/authorized_keys
-        chmod 600 /home/$UNAME/.ssh/authorized_keys
-        echo '[ -f "/home/.bashrc" ] && . /home/.bashrc' >> /home/$UNAME/.bashrc
-        chmod 700 /home/$UNAME
-        chown $USER:$USER -R /home/$UNAME
-    fi
-
-    if [ -n "$RSA" ] && ! grep -qF "$RSA" /home/$UNAME/.ssh/authorized_keys; then
-        echo "$RSA" >> /home/$UNAME/.ssh/authorized_keys
-    fi
 fi
 
 exec "$@"
