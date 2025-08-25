@@ -1,14 +1,13 @@
 #!/usr/bin/env bash
 
-if [ ! -f "/home/.bashrc" ]; then
-    cat > /home/.bashrc << EOF
+[ ! -f "/home/.bashrc" ] && cat > /home/.bashrc << EOF && chmod g+w /home/.bashrc
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
 HISTSIZE=10000
 HISTFILESIZE=20000
 HISTCONTROL=ignoreboth
 
 # set a fancy prompt (non-color, unless we know we "want" color)
-PS1='\[\033[01;34m\]\u\[\033[00m\]:\[\033[01;35m\]\w\[\033[00m\]\[\033[01;31m\] \$ \[\033[00m\]'
+PS1='$\033[01;34m$\u$\033[00m$:$\033[01;35m$\w$\033[00m$$\033[01;31m$ \$ $\033[00m$'
 
 # allow sudo to use completion from the current user's shell environment
 complete -cf sudo
@@ -22,20 +21,10 @@ alias grep='grep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
 EOF
-    chmod g+w /home/.bashrc
-fi
 
-[ ! -d "/home/bin" ] && mkdir /home/bin && chmod g+w /home/bin
-
-if [ ! -d "/home/conf" ]; then
-    mkdir /home/conf
-    chmod g+w /home/conf
-fi
-
-if [ ! -d "/home/supervisord" ]; then
-    mkdir /home/supervisord
-    chmod g+w /home/supervisord
-fi
+for dir in bin conf supervisord; do
+    [ ! -d "/home/$dir" ] && mkdir "/home/$dir" && chmod g+w "/home/$dir"
+done
 
 cat > /etc/supervisor/supervisord.conf << EOF
 [unix_http_server]
@@ -60,17 +49,14 @@ files = /home/supervisord/*.conf
 EOF
 
 if [ -z "$USER" ] || [ -z "$PASSWD" ]; then
-    echo "root:password" | chpasswd
-    TTYD_ARG="-t enableTrzsz=true"
+    USER="root"
+    PASSWD="password"
+    HOME="/root"
 else
-    echo "root:$PASSWD" | chpasswd
-    TTYD_ARG="-t enableTrzsz=true -c $USER:$PASSWD"
-
     HOME="/home/$USER"
 
-    if ! getent passwd $USER >/dev/null; then
+    if ! getent passwd $USER > /dev/null; then
         useradd -s /bin/bash -d $HOME -G root,sudo $USER
-        echo "$USER:$PASSWD" | chpasswd
         echo "$USER ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$USER
     fi
 
@@ -89,13 +75,15 @@ else
     fi
 fi
 
+echo "$USER:$PASSWD" | chpasswd
+
 cat > /home/supervisord/ttyd.conf << EOF
 [program:ttyd]
 stdout_logfile=/tmp/ttyd.log
 stderr_logfile=/tmp/ttyd.log
 autostart=true
 autorestart=true
-command=/usr/local/bin/ttyd $TTYD_ARG -W bash
+command=/usr/local/bin/ttyd -t enableTrzsz=true -c $USER:$PASSWD -W bash
 directory=$HOME
 user=$USER
 EOF
