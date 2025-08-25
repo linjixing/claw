@@ -72,7 +72,7 @@ else
             chown $UNAME:$UNAME /home/$UNAME/.ssh/authorized_keys
         fi
 
-        if [ ! grep -qF "$RSA" /home/$UNAME/.ssh/authorized_keys ]; then
+        if ! grep -qF "$RSA" /home/$UNAME/.ssh/authorized_keys; then
             echo "$RSA" >> /home/$UNAME/.ssh/authorized_keys
         fi
     fi
