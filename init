@@ -48,45 +48,49 @@ serverurl=unix:///var/run/supervisor.sock
 files = /home/supervisord/*.conf
 EOF
 
-echo "root:password" | chpasswd
-
-if [ -z "$USER" ] || [ -z "$PASSWD" ]; then
-    USER="root"
-    PASSWD="password"
-    HOME="/root"
-else
-    HOME="/home/$USER"
-    echo "$USER:$PASSWD" | chpasswd
-
-    if ! getent passwd $USER > /dev/null; then
-        useradd -s /bin/bash -d $HOME -G root,sudo $USER
-        echo "$USER ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$USER
-    fi
-
-    if [ ! -d "$HOME" ]; then
-        mkdir -p $HOME/.ssh
-        chmod 700 $HOME/.ssh
-        touch $HOME/.ssh/authorized_keys
-        chmod 600 $HOME/.ssh/authorized_keys
-        echo "[ -f /home/.bashrc ] && . /home/.bashrc" >> $HOME/.bashrc
-        chmod 700 $HOME
-        chown $USER:$USER -R $HOME
-    fi
-
-    if [ -n "$RSA" ] && ! grep -qF "$RSA" $HOME/.ssh/authorized_keys; then
-        echo "$RSA" >> $HOME/.ssh/authorized_keys
-    fi
-fi
-
-cat > /home/supervisord/ttyd.conf << EOF
+if [ -z "$UNAME" ] || [ -z "$PASSWD" ]; then
+    echo "root:password" | chpasswd
+    cat > /home/supervisord/ttyd.conf << EOF
 [program:ttyd]
 stdout_logfile=/tmp/ttyd.log
 stderr_logfile=/tmp/ttyd.log
 autostart=true
 autorestart=true
-command=/usr/local/bin/ttyd -t enableTrzsz=true -c $USER:$PASSWD -W bash
-directory=$HOME
-user=$USER
+command=/usr/local/bin/ttyd -t enableTrzsz=true -c root:password -W bash
+directory=/root
+user=root
 EOF
+else
+    echo "$UNAME:$PASSWD" | chpasswd
+    cat > /home/supervisord/ttyd.conf << EOF
+[program:ttyd]
+stdout_logfile=/tmp/ttyd.log
+stderr_logfile=/tmp/ttyd.log
+autostart=true
+autorestart=true
+command=/usr/local/bin/ttyd -t enableTrzsz=true -c $UNAME:$PASSWD -W bash
+directory=/home/$UNAME
+user=$UNAME
+EOF
+
+    if ! getent passwd $UNAME > /dev/null; then
+        useradd -s /bin/bash -d "/home/$UNAME" -G root,sudo $UNAME
+        echo "$UNAME ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$UNAME
+    fi
+
+    if [ ! -d "/home/$UNAME" ]; then
+        mkdir -p /home/$UNAME/.ssh
+        chmod 700 /home/$UNAME/.ssh
+        touch /home/$UNAME/.ssh/authorized_keys
+        chmod 600 /home/$UNAME/.ssh/authorized_keys
+        echo '[ -f "/home/.bashrc" ] && . /home/.bashrc' >> /home/$UNAME/.bashrc
+        chmod 700 /home/$UNAME
+        chown $USER:$USER -R /home/$UNAME
+    fi
+
+    if [ -n "$RSA" ] && ! grep -qF "$RSA" /home/$UNAME/.ssh/authorized_keys; then
+        echo "$RSA" >> /home/$UNAME/.ssh/authorized_keys
+    fi
+fi
 
 exec "$@"
