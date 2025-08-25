@@ -48,12 +48,15 @@ serverurl=unix:///var/run/supervisor.sock
 files = /home/supervisord/*.conf
 EOF
 
+echo "root:password" | chpasswd
+
 if [ -z "$USER" ] || [ -z "$PASSWD" ]; then
     USER="root"
     PASSWD="password"
     HOME="/root"
 else
     HOME="/home/$USER"
+    echo "$USER:$PASSWD" | chpasswd
 
     if ! getent passwd $USER > /dev/null; then
         useradd -s /bin/bash -d $HOME -G root,sudo $USER
@@ -74,8 +77,6 @@ else
         echo "$RSA" >> $HOME/.ssh/authorized_keys
     fi
 fi
-
-echo "$USER:$PASSWD" | chpasswd
 
 cat > /home/supervisord/ttyd.conf << EOF
 [program:ttyd]
