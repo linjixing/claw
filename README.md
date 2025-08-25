@@ -35,25 +35,24 @@ docker build -t $CONTAINER:$TAG .
 - Login as root
 
 ```
-docker stop $CONTAINER
-docker rm $CONTAINER
-docker run -dit --name $CONTAINER -h $CONTAINER -p $TTYD_PORT:$TTYD_PORT $CONTAINER:$TAG
+docker stop $CONTAINER && docker rm $CONTAINER && docker \
+run -dit --name $CONTAINER -h $CONTAINER -p $TTYD_PORT:$TTYD_PORT $CONTAINER:$TAG
 ```
 
 - Login as $UNAME with $PASSWD
 
 ```
-docker stop $CONTAINER
-docker rm $CONTAINER
-docker run -dit --name $CONTAINER -h $CONTAINER -p $TTYD_PORT:$TTYD_PORT -e USER=$UNAME -e PASSWD=$PASSWD $CONTAINER:$TAG
+docker stop $CONTAINER && docker rm $CONTAINER && \
+docker run -dit --name $CONTAINER -h $CONTAINER -p $TTYD_PORT:$TTYD_PORT \
+-e UNAME=$UNAME -e PASSWD=$PASSWD $CONTAINER:$TAG
 ```
 
 - Login as $UNAME with $PASSWD and $RSA
 
 ```
-docker stop $CONTAINER
-docker rm $CONTAINER
-docker run -dit --name $CONTAINER -h $CONTAINER -p $TTYD_PORT:$TTYD_PORT -e USER=$UNAME -e PASSWD=$PASSWD -e RSA="$RSA" $CONTAINER:$TAG
+docker stop $CONTAINER && docker rm $CONTAINER && \
+docker run -dit --name $CONTAINER -h $CONTAINER -p $TTYD_PORT:$TTYD_PORT \
+-e UNAME=$UNAME -e PASSWD=$PASSWD -e RSA="$RSA" $CONTAINER:$TAG
 ```
 
 # Push
@@ -69,6 +68,16 @@ docker push $UNAME/$CONTAINER:$TAG
 
 docker tag $CONTAINER:$TAG $UNAME/$CONTAINER:latest
 docker push $UNAME/$CONTAINER:latest
+```
+
+# TTYD
+
+- http://localhost:7681
+
+```
+if UNAME and PASSWD is not set
+default user: root
+default password: password
 ```
 
 # Docs

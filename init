@@ -49,7 +49,6 @@ files = /home/supervisord/*.conf
 EOF
 
 if [ -z "$UNAME" ] || [ -z "$PASSWD" ]; then
-    echo "root:password" | chpasswd
     cat > /home/supervisord/ttyd.conf << EOF
 [program:ttyd]
 stdout_logfile=/tmp/ttyd.log
@@ -60,8 +59,9 @@ command=/usr/local/bin/ttyd -t enableTrzsz=true -c root:password -W bash
 directory=/root
 user=root
 EOF
+
+    echo "root:password" | chpasswd
 else
-    echo "$UNAME:$PASSWD" | chpasswd
     cat > /home/supervisord/ttyd.conf << EOF
 [program:ttyd]
 stdout_logfile=/tmp/ttyd.log
@@ -76,6 +76,7 @@ EOF
     if ! getent passwd $UNAME > /dev/null; then
         useradd -s /bin/bash -d "/home/$UNAME" -G root,sudo $UNAME
         echo "$UNAME ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$UNAME
+        echo "$UNAME:$PASSWD" | chpasswd
     fi
 
     if [ ! -d "/home/$UNAME" ]; then
