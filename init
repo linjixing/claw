@@ -6,6 +6,9 @@ PS1='\[\033[01;34m\]\u\[\033[00m\]:\[\033[01;35m\]\w\[\033[00m\]\[\033[01;31m\] 
 
 # allow sudo to use completion from the current user's shell environment
 complete -cf sudo
+
+# some aliases
+alias sudo='sudo '
 EOF
 
 for dir in bin conf supervisord; do
