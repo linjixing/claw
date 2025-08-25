@@ -6,8 +6,12 @@ software | version
 --- | ---
 python | 3.10.12
 supervisord | 4.2.1
-ttyd | 1.7.7
 trzsz | 1.1.8
+ttyd | 1.7.7
+frp | 0.64.0
+cloudflared | 2025.7.0
+sing-box | 1.11.15
+xray | 25.7.26
 
 # Variables
 

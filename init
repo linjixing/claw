@@ -1,7 +1,6 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
-if [ ! -f "/home/.bashrc" ]; then
-    cat > /home/.bashrc << EOF
+[ ! -f "/home/.bashrc" ] && cat > /home/.bashrc << EOF
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
 HISTSIZE=10000
 HISTFILESIZE=20000
@@ -21,9 +20,7 @@ alias l='ls -CF'
 alias grep='grep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
-EOF
-    chmod g+w /home/.bashrc
-fi
+EOF && chmod g+w /home/.bashrc
 
 if [ ! -d "/home/bin" ]; then
     mkdir /home/bin
@@ -63,15 +60,14 @@ files = /home/supervisord/*.conf
 EOF
 
 if [ -z "$USER" ] || [ -z "$PASSWD" ]; then
-    USER="root"
-    HOME="/root"
+    echo "root:password" | chpasswd
     TTYD_ARG="-t enableTrzsz=true"
 else
-    HOME="/home/$USER"
+    echo "root:$PASSWD" | chpasswd
     TTYD_ARG="-t enableTrzsz=true -c $USER:$PASSWD"
 
-    echo "root:$PASSWD" | chpasswd
-    
+    HOME="/home/$USER"
+
     if ! getent passwd $USER >/dev/null; then
         useradd -s /bin/bash -d $HOME -G root,sudo $USER
         echo "$USER:$PASSWD" | chpasswd
@@ -99,17 +95,9 @@ stdout_logfile=/tmp/ttyd.log
 stderr_logfile=/tmp/ttyd.log
 autostart=true
 autorestart=true
-command=/usr/bin/ttyd $TTYD_ARG -W bash
+command=/usr/local/bin/ttyd $TTYD_ARG -W bash
 directory=$HOME
 user=$USER
 EOF
-
-# 将环境变量加入/root/.bashrc
-# env | sed -E '/^(_|PATH|USER|HOME|PWD|SHLVL|HOSTNAME|TERM|LOGNAME|RSA)=/d' | \
-# while IFS= read -r line; do
-#     if ! grep -qF "export ${line%%=*}" /root/.bashrc; then
-#         echo "export $line" >> /root/.bashrc
-#     fi
-# done
 
 exec "$@"

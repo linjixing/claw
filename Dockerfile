@@ -17,12 +17,13 @@ RUN export DEBIAN_FRONTEND=noninteractive; \
     echo "set fileencodings=utf-8,gbk,utf-16le,cp1252,iso-8859-15,ucs-bom" >> /etc/vim/vimrc; \
     echo "set termencoding=utf-8" >> /etc/vim/vimrc; \
     echo "set encoding=utf-8" >> /etc/vim/vimrc; \
-    wget https://github.com/trzsz/trzsz-go/releases/download/v1.1.8/trzsz_1.1.8_linux_x86_64.tar.gz; \
-    tar -zxf trzsz_1.1.8_linux_x86_64.tar.gz; \
-    mv trzsz_1.1.8_linux_x86_64/* /usr/local/bin/; \
-    rm -rf trzsz_1.1.8_linux_x86_64*; \
-    curl -Lo /usr/bin/ttyd https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.x86_64; \
-    chmod +x /usr/bin/ttyd; \
+    wget -qO- https://github.com/trzsz/trzsz-go/releases/download/v1.1.8/trzsz_1.1.8_linux_x86_64.tar.gz | tar -xz -C /usr/local/bin --strip-components=1 trzsz_1.1.8_linux_x86_64/trz trzsz_1.1.8_linux_x86_64/tsz; \
+    wget -qO- https://github.com/fatedier/frp/releases/download/v0.64.0/frp_0.64.0_linux_amd64.tar.gz | tar -xz -C /usr/local/bin --strip-components=1 frp_0.64.0_linux_amd64/frps frp_0.64.0_linux_amd64/frpc; \
+    wget -qO- https://github.com/SagerNet/sing-box/releases/download/v1.11.15/sing-box-1.11.15-linux-amd64.tar.gz | tar -xz -C /usr/local/bin --strip-components=1 sing-box-1.11.15-linux-amd64/sing-box; \
+    curl -Lo xray.zip https://github.com/XTLS/Xray-core/releases/download/v25.7.26/Xray-linux-64.zip && unzip xray.zip xray geoip.dat geosite.dat -d /usr/local/bin && rm xray.zip; \
+    curl -Lo /usr/local/bin/cloudflared https://github.com/cloudflare/cloudflared/releases/download/2025.7.0/cloudflared-linux-amd64 && chmod +x /usr/local/bin/cloudflared; \
+    curl -Lo /usr/local/bin/ttyd https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.x86_64 && chmod +x /usr/local/bin/ttyd; \
+    chown root:root -R /usr/local/bin/*; \
     chmod +x /usr/bin/init
 
 ENTRYPOINT ["init"]
