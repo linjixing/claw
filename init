@@ -79,12 +79,12 @@ else
     fi
 
     if [ ! -d "$HOME" ]; then
-        chmod 700 $HOME
         mkdir -p $HOME/.ssh
         chmod 700 $HOME/.ssh
         touch $HOME/.ssh/authorized_keys
         chmod 600 $HOME/.ssh/authorized_keys
         echo "[ -f /home/.bashrc ] && . /home/.bashrc" >> $HOME/.bashrc
+        chmod 700 $HOME
         chown $USER:$USER -R $HOME
     fi
 
