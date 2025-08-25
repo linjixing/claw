@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-[ ! -f "/home/.bashrc" ] && cat > /home/.bashrc << EOF
+if [ ! -f "/home/.bashrc" ]; then
+    cat > /home/.bashrc << EOF
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
 HISTSIZE=10000
 HISTFILESIZE=20000
@@ -20,12 +21,11 @@ alias l='ls -CF'
 alias grep='grep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
-EOF && chmod g+w /home/.bashrc
-
-if [ ! -d "/home/bin" ]; then
-    mkdir /home/bin
-    chmod g+w /home/bin
+EOF
+    chmod g+w /home/.bashrc
 fi
+
+[ ! -d "/home/bin" ] && mkdir /home/bin && chmod g+w /home/bin
 
 if [ ! -d "/home/conf" ]; then
     mkdir /home/conf
