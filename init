@@ -60,13 +60,13 @@ else
         if [ ! -d "/home/$UNAME/.ssh" ]; then
             mkdir -p /home/$UNAME/.ssh
             chmod 700 /home/$UNAME/.ssh
-            chown $USER:$USER /home/$UNAME/.ssh
+            chown $UNAME:$UNAME /home/$UNAME/.ssh
         fi
 
         if [ ! -f "/home/$UNAME/.ssh/authorized_keys" ]; then
             touch /home/$UNAME/.ssh/authorized_keys
             chmod 600 /home/$UNAME/.ssh/authorized_keys
-            chown $USER:$USER /home/$UNAME/.ssh/authorized_keys
+            chown $UNAME:$UNAME /home/$UNAME/.ssh/authorized_keys
         fi
 
         if [ ! grep -qF "$RSA" /home/$UNAME/.ssh/authorized_keys ]; then
