@@ -17,6 +17,7 @@ RUN export DEBIAN_FRONTEND=noninteractive; \
     echo 'set fileencodings=utf-8,gbk,utf-16le,cp1252,iso-8859-15,ucs-bom' >> /etc/vim/vimrc; \
     echo 'set termencoding=utf-8' >> /etc/vim/vimrc; \
     echo 'set encoding=utf-8' >> /etc/vim/vimrc; \
+    mkdir /var/run/sshd; \
     wget -qO- https://github.com/trzsz/trzsz-go/releases/download/v1.1.8/trzsz_1.1.8_linux_x86_64.tar.gz | tar -xz -C /usr/local/bin --strip-components=1 trzsz_1.1.8_linux_x86_64/trz trzsz_1.1.8_linux_x86_64/tsz; \
     wget -qO- https://github.com/fatedier/frp/releases/download/v0.64.0/frp_0.64.0_linux_amd64.tar.gz | tar -xz -C /usr/local/bin --strip-components=1 frp_0.64.0_linux_amd64/frps frp_0.64.0_linux_amd64/frpc; \
     wget -qO- https://github.com/SagerNet/sing-box/releases/download/v1.11.15/sing-box-1.11.15-linux-amd64.tar.gz | tar -xz -C /usr/local/bin --strip-components=1 sing-box-1.11.15-linux-amd64/sing-box; \

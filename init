@@ -9,6 +9,7 @@ complete -cf sudo
 
 # some aliases
 alias sudo='sudo '
+alias now='echo `date "+%Y-%m-%d %H:%M:%S %A"`'
 EOF
 
 for dir in bin conf supervisord; do
