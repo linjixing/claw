@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 
+umask 002
+
 chown root:root /home && chmod 775 /home
 
 for dir in www bin conf supervisord; do
     [ ! -d "/home/$dir" ] && mkdir "/home/$dir"
-    chmod 775 "/home/$dir"
 done
 
 [ ! -f "/home/.bashrc" ] && cat > /home/.bashrc << EOF
@@ -79,6 +80,7 @@ else
         else
             useradd -M -s /bin/bash -G root,sudo $UNAME
         fi
+        chmod 700 /home/$UNAME
         echo "$UNAME ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$UNAME
         echo "$UNAME:$PASSWD" | chpasswd
         if [ ! -f "/home/$UNAME/.bashrc" ]; then
@@ -94,13 +96,11 @@ else
             chmod 700 /home/$UNAME/.ssh
             chown $UNAME:$UNAME /home/$UNAME/.ssh
         fi
-
         if [ ! -f "/home/$UNAME/.ssh/authorized_keys" ]; then
             touch /home/$UNAME/.ssh/authorized_keys
             chmod 600 /home/$UNAME/.ssh/authorized_keys
             chown $UNAME:$UNAME /home/$UNAME/.ssh/authorized_keys
         fi
-
         grep -qF "$RSA" /home/$UNAME/.ssh/authorized_keys || echo "$RSA" >> /home/$UNAME/.ssh/authorized_keys
     fi
 
