@@ -86,7 +86,7 @@ else
         if [ ! -f "/home/$UNAME/.bashrc" ]; then
             echo '[ -f "/home/.bashrc" ] && . /home/.bashrc' > /home/$UNAME/.bashrc
         else
-            grep -qF '[ -f "/home/.bashrc" ] && . /home/.bashrc' "/home/$UNAME/.bashrc" || echo '[ -f "/home/.bashrc" ] && . /home/.bashrc' >> /home/$UNAME/.bashrc
+            grep -qF '[ -f "/home/.bashrc" ] && . /home/.bashrc' /home/$UNAME/.bashrc || echo '[ -f "/home/.bashrc" ] && . /home/.bashrc' >> /home/$UNAME/.bashrc
         fi
     fi
 
