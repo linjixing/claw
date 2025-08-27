@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+chmod g+w /home
+
 [ ! -f "/home/.bashrc" ] && cat > /home/.bashrc << EOF && chmod g+w /home/.bashrc
 # set a fancy prompt (non-color, unless we know we "want" color)
 PS1='\[\033[01;34m\]\u\[\033[00m\]:\[\033[01;35m\]\w\[\033[00m\]\[\033[01;31m\] $ \[\033[00m\]'
@@ -8,8 +10,17 @@ PS1='\[\033[01;34m\]\u\[\033[00m\]:\[\033[01;35m\]\w\[\033[00m\]\[\033[01;31m\] 
 complete -cf sudo
 
 # some aliases
+alias la='ls -AF'
+alias ll='ls -lAhF'
+alias LL='ll'
+alias LA='la'
+alias vi='vim'
+alias c='clear'
 alias sudo='sudo '
-alias now='echo `date "+%Y-%m-%d %H:%M:%S %A"`'
+alias now='echo \`date "+%Y-%m-%d %H:%M:%S %A"\`'
+
+# export environment variables
+export PATH=$PATH:/home/bin
 EOF
 
 for dir in bin conf supervisord; do
