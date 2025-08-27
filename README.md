@@ -35,8 +35,8 @@ docker build -t $CONTAINER:$TAG .
 - Login as root
 
 ```
-docker stop $CONTAINER && docker rm $CONTAINER && docker \
-run -dit --name $CONTAINER -h $CONTAINER -p $TTYD_PORT:$TTYD_PORT $CONTAINER:$TAG
+docker stop $CONTAINER && docker rm $CONTAINER && \
+docker run -dit --name $CONTAINER -h $CONTAINER -p $TTYD_PORT:$TTYD_PORT $CONTAINER:$TAG
 ```
 
 - Login as $UNAME with $PASSWD
