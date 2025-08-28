@@ -8,7 +8,7 @@ for dir in www bin conf supervisord; do
     [ ! -d "/home/$dir" ] && mkdir "/home/$dir"
 done
 
-[ ! -f "/home/.bashrc" ] && cat > /home/.bashrc << EOF
+[ ! -f "/home/.bashrc" ] && cat > /home/.bashrc << 'EOF'
 # set a fancy prompt (non-color, unless we know we "want" color)
 PS1='\[\033[01;34m\]\u\[\033[00m\]:\[\033[01;35m\]\w\[\033[00m\]\[\033[01;31m\] $ \[\033[00m\]'
 
@@ -16,7 +16,7 @@ PS1='\[\033[01;34m\]\u\[\033[00m\]:\[\033[01;35m\]\w\[\033[00m\]\[\033[01;31m\] 
 complete -cf sudo
 
 # some aliases
-alias ..='. "\$HOME/.rc"'
+alias ..='. "$HOME/.rc"'
 alias la='ls -AF'
 alias LA='la'
 alias ll='ls -lhAF'
@@ -27,13 +27,13 @@ alias VI='vim'
 alias ENV='env'
 alias c='clear'
 alias sudo='sudo '
-alias now='echo \`date "+%Y-%m-%d %H:%M:%S %A"\`'
+alias now='echo `date "+%Y-%m-%d %H:%M:%S %A"`'
 
 # set global bin PATH
 PATH="\$PATH:/home/bin"
 
 # source user's private .rc if exists
-[ -f "\$HOME/.rc" ] && . \$HOME/.rc
+[ -f "$HOME/.rc" ] && . $HOME/.rc
 EOF
 chmod 664 /home/.bashrc
 
@@ -110,8 +110,8 @@ stdout_logfile=/tmp/ttyd.log
 stderr_logfile=/tmp/ttyd.log
 autostart=true
 autorestart=true
-environment=HOME="/home/$UNAME"
 command=/usr/local/bin/ttyd -t enableTrzsz=true -c $UNAME:$PASSWD -W bash
+environment=HOME="/home/$UNAME",USER="$UNAME",LOGNAME="$UNAME"
 directory=/home/$UNAME
 user=$UNAME
 EOF
