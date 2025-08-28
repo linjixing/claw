@@ -30,7 +30,7 @@ alias sudo='sudo '
 alias now='echo `date "+%Y-%m-%d %H:%M:%S %A"`'
 
 # set global bin PATH
-PATH="\$PATH:/home/bin"
+PATH="$PATH:/home/bin"
 
 # source user's private .rc if exists
 [ -f "$HOME/.rc" ] && . $HOME/.rc
