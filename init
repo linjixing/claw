@@ -4,9 +4,7 @@ umask 002
 
 chown root:root /home && chmod 775 /home
 
-for dir in www bin; do
-    [ ! -d "/home/$dir" ] && mkdir "/home/$dir"
-done
+[ -z "$UNAME" ] || [ -z "$PASSWD" ] && USER="root" && PASSWD="password" && HOME="/root" || USER="$UNAME" && HOME="/home/$UNAME"
 
 [ -z "$CONF_PATH" ] && CONF_PATH="/home/conf"
 [ ! -d "$CONF_PATH/supervisord" ] && mkdir -p "$CONF_PATH/supervisord"
