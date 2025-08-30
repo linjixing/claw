@@ -1,21 +1,21 @@
-# From Ubuntu 22.04
+## From Ubuntu 22.04
 
-# Softwares
+## Softwares
 
-software | version
---- | ---
-python | 3.10.12
-supervisord | 4.2.1
-trzsz | 1.1.8
-ttyd | 1.7.7
-frp | 0.64.0
-cloudflared | 2025.7.0
-sing-box | 1.11.15
-xray | 25.7.26
+| software | version |
+| --- | --- |
+| python | 3.10.12 |
+| supervisord | 4.2.1 |
+| trzsz | 1.1.8 |
+| ttyd | 1.7.7 |
+| frp | 0.64.0 |
+| cloudflared | 2025.7.0 |
+| sing-box | 1.11.15 |
+| xray | 25.7.26 |
 
-# Variables
+## Variables
 
-```
+```bash
 UNAME="linjixing"
 PASSWD="password"
 RSA="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDQ51EmSCCjZHF0JGaDeZai2B2GBMEhcB4VxggLm92J8qHiLAL+OXv6qjhDn8Ip1bOdedODI0/RLg6jLXdcg3IgeLnxDQ4MOk79k7terEbeR49Vln5oFkJjoiiVB4u6OsDPf3x2BEX7fCMPlUB2OQrmJbU1hTIZKZCq0kfQN1w4kIomPsqLLq/4x1lUtwZZm3pJMKv+pNq22NkSeFn8/cUIoSEgP7rQeRV7V8sWG87FtZTdr1bYEY6x8Bsijcqv+8ZASI0JKWklKT71VFSqd6CYwkL+1SUk4LOyI9DraxUEXMPdMc5fQgP7ZY8yz/I0d6UsEmXRLeu4GE7mEpjvqEeB"
@@ -24,45 +24,45 @@ CONTAINER="claw"
 TAG="25.8.25"
 ```
 
-# Build
+## Build
 
-```
+```bash
 docker build -t $CONTAINER:$TAG .
 ```
 
-# Usage
+## Usage
 
 - Login as root
 
-```
+```bash
 docker stop $CONTAINER && docker rm $CONTAINER && \
 docker run -dit --name $CONTAINER -h $CONTAINER -p $TTYD_PORT:$TTYD_PORT $CONTAINER:$TAG
 ```
 
-- Login as $UNAME with $PASSWD
+- Login as UNAME with PASSWD
 
-```
+```bash
 docker stop $CONTAINER && docker rm $CONTAINER && \
 docker run -dit --name $CONTAINER -h $CONTAINER -p $TTYD_PORT:$TTYD_PORT \
 -e UNAME=$UNAME -e PASSWD=$PASSWD $CONTAINER:$TAG
 ```
 
-- Login as $UNAME with $PASSWD and $RSA
+- Login as UNAME with PASSWD and RSA
 
-```
+```bash
 docker stop $CONTAINER && docker rm $CONTAINER && \
 docker run -dit --name $CONTAINER -h $CONTAINER -p $TTYD_PORT:$TTYD_PORT \
 -e UNAME=$UNAME -e PASSWD=$PASSWD -e RSA="$RSA" $CONTAINER:$TAG
 ```
 
-# Push
+## Push
 
-```
+```bash
 docker logout
 docker login -u $UNAME
 ```
 
-```
+```bash
 docker tag $CONTAINER:$TAG $UNAME/$CONTAINER:$TAG
 docker push $UNAME/$CONTAINER:$TAG
 
@@ -70,15 +70,12 @@ docker tag $CONTAINER:$TAG $UNAME/$CONTAINER:latest
 docker push $UNAME/$CONTAINER:latest
 ```
 
-# TTYD
+## TTYD
 
-- http://localhost:7681
+- [http://localhost:7681](http://localhost:7681)
+- if UNAME and PASSWD is not set
 
-```
-if UNAME and PASSWD is not set
-default user: root
-default password: password
-```
+  - default user: root
+  - default password: password
 
-# Docs
-
+## Docs

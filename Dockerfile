@@ -1,7 +1,5 @@
 FROM ubuntu:22.04
 
-LABEL org.opencontainers.image.source=https://github.com/linjixing/claw
-
 COPY init /usr/bin
 
 RUN export DEBIAN_FRONTEND=noninteractive; \
@@ -10,7 +8,7 @@ RUN export DEBIAN_FRONTEND=noninteractive; \
     apt-get clean; \
     rm -rf /var/lib/apt/lists/*; \
     ln -snf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime; \
-    echo '[ -f "/home/.bashrc" ] && . /home/.bashrc' >> /root/.bashrc; \
+    echo '[ -f "/tmp/.bashrc" ] && . /tmp/.bashrc' >> /root/.bashrc; \
     echo 'shell /bin/bash' >> /etc/screenrc; \
     echo 'termcapinfo xterm* ti@:te@' >> /etc/screenrc; \
     echo 'Asia/Shanghai' > /etc/timezone; \

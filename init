@@ -4,11 +4,14 @@ umask 002
 
 chown root:root /home && chmod 775 /home
 
-for dir in www bin conf supervisord; do
+for dir in www bin; do
     [ ! -d "/home/$dir" ] && mkdir "/home/$dir"
 done
 
-[ ! -f "/home/.bashrc" ] && cat > /home/.bashrc << 'EOF'
+[ -z "$CONF_PATH" ] && CONF_PATH="/home/conf"
+[ ! -d "$CONF_PATH/supervisord" ] && mkdir -p "$CONF_PATH/supervisord"
+
+[ ! -f "/tmp/.bashrc" ] && cat > /tmp/.bashrc << 'EOF'
 # set a fancy prompt (non-color, unless we know we "want" color)
 PS1='\[\033[01;34m\]\u\[\033[00m\]:\[\033[01;35m\]\w\[\033[00m\]\[\033[01;31m\] $ \[\033[00m\]'
 
@@ -16,7 +19,6 @@ PS1='\[\033[01;34m\]\u\[\033[00m\]:\[\033[01;35m\]\w\[\033[00m\]\[\033[01;31m\] 
 complete -cf sudo
 
 # some aliases
-alias ..='. "$HOME/.rc"'
 alias la='ls -AF'
 alias LA='la'
 alias ll='ls -lhAF'
@@ -27,15 +29,19 @@ alias VI='vim'
 alias ENV='env'
 alias c='clear'
 alias sudo='sudo '
+alias ..='. "$HOME/.rc"'
 alias now='echo `date "+%Y-%m-%d %H:%M:%S %A"`'
 
-# set global bin PATH
-PATH="$PATH:/home/bin"
+# set bin PATH
+PATH="$PATH:$HOME/bin:/home/bin"
+
+# set conf PATH
+CONF_PATH=$CONF_PATH
 
 # source user's private .rc if exists
 [ -f "$HOME/.rc" ] && . $HOME/.rc
 EOF
-chmod 664 /home/.bashrc
+chmod 666 /tmp/.bashrc
 
 cat > /etc/supervisor/supervisord.conf << EOF
 [unix_http_server]
@@ -44,7 +50,6 @@ chmod=0700
 
 [supervisord]
 nodaemon=true
-user=root
 logfile=/tmp/supervisord.log
 pidfile=/var/run/supervisord.pid
 childlogdir=/tmp
@@ -56,16 +61,16 @@ supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
 serverurl=unix:///var/run/supervisor.sock
 
 [include]
-files = /home/supervisord/*.conf
+files = $CONF_PATH/supervisord/*.conf
 EOF
 
 if [ -z "$UNAME" ] || [ -z "$PASSWD" ]; then
     echo "root:password" | chpasswd
 
-    cat > /home/supervisord/ttyd.conf << EOF
+    cat > $CONF_PATH/supervisord/ttyd.conf << EOF
 [program:ttyd]
 stdout_logfile=/tmp/ttyd.log
-stderr_logfile=/tmp/ttyd.log
+redirect_stderr=true
 autostart=true
 autorestart=true
 command=/usr/local/bin/ttyd -t enableTrzsz=true -c root:password -W bash
@@ -104,10 +109,10 @@ else
         grep -qF "$RSA" /home/$UNAME/.ssh/authorized_keys || echo "$RSA" >> /home/$UNAME/.ssh/authorized_keys
     fi
 
-    cat > /home/supervisord/ttyd.conf << EOF
+    cat > $CONF_PATH/supervisord/ttyd.conf << EOF
 [program:ttyd]
 stdout_logfile=/tmp/ttyd.log
-stderr_logfile=/tmp/ttyd.log
+redirect_stderr=true
 autostart=true
 autorestart=true
 command=/usr/local/bin/ttyd -t enableTrzsz=true -c $UNAME:$PASSWD -W bash
