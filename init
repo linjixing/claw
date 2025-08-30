@@ -84,10 +84,13 @@ else
 
     if ! getent passwd $UNAME > /dev/null; then
         [ -d "/home/$UNAME" ] || useradd -m -s /bin/bash -G root,sudo $UNAME || useradd -M -s /bin/bash -G root,sudo $UNAME && chmod 700 /home/$UNAME
-        [ -f "/home/$UNAME/.bashrc" ] || echo "[ -f \"$BASHRC\" ] && . $BASHRC" > /home/$UNAME/.bashrc || grep -qF "[ -f \"$BASHRC\" ] && . $BASHRC" /home/$UNAME/.bashrc || echo "[ -f \"$BASHRC\" ] && . $BASHRC" >> /home/$UNAME/.bashrc
         echo "$UNAME ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$UNAME && chmod 440 /etc/sudoers.d/$UNAME
-        echo "$UNAME:$PASSWD" | chpasswd
     fi
+
+    echo "$UNAME:$PASSWD" | chpasswd
+
+    [ -f "/home/$UNAME/.bashrc" ] && touch /home/$UNAME/.bashrc && chmod 644 /home/$UNAME/.bashrc && chown $UNAME:$UNAME /home/$UNAME/.bashrc
+    grep -qF "[ -f \"$BASHRC\" ] && . $BASHRC" /home/$UNAME/.bashrc || echo "[ -f \"$BASHRC\" ] && . $BASHRC" >> /home/$UNAME/.bashrc
 
     if [ -n "$RSA" ]; then
         [ ! -d "/home/$UNAME/.ssh" ] && mkdir -p /home/$UNAME/.ssh && chmod 700 /home/$UNAME/.ssh && chown $UNAME:$UNAME /home/$UNAME/.ssh
