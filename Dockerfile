@@ -8,7 +8,6 @@ RUN export DEBIAN_FRONTEND=noninteractive; \
     apt-get clean; \
     rm -rf /var/lib/apt/lists/*; \
     ln -snf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime; \
-    echo '[ -f "/tmp/.bashrc" ] && . /tmp/.bashrc' >> /root/.bashrc; \
     echo 'shell /bin/bash' >> /etc/screenrc; \
     echo 'termcapinfo xterm* ti@:te@' >> /etc/screenrc; \
     echo 'Asia/Shanghai' > /etc/timezone; \
