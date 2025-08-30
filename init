@@ -34,7 +34,7 @@ alias ..='. "$HOME/.rc"'
 alias now='echo `date "+%Y-%m-%d %H:%M:%S %A"`'
 
 # set bin PATH
-PATH="$PATH:$HOME/bin:/home/bin"
+PATH="$PATH:/home/bin:$HOME/bin"
 
 # set conf PATH
 CONF_PATH=$CONF_PATH
@@ -44,7 +44,7 @@ CONF_PATH=$CONF_PATH
 EOF
 chmod 666 $BASHRC
 
-echo "[ -f \"$BASHRC\" ] && . $BASHRC" >> /root/.bashrc
+grep -qF "[ -f \"$BASHRC\" ] && . $BASHRC" /root/.bashrc || echo "[ -f \"$BASHRC\" ] && . $BASHRC" >> /root/.bashrc
 
 cat > /etc/supervisor/supervisord.conf << EOF
 [unix_http_server]
@@ -70,7 +70,7 @@ EOF
 if [ -z "$UNAME" ] || [ -z "$PASSWD" ]; then
     echo "root:password" | chpasswd
 
-    cat > $CONF_PATH/supervisord/ttyd.conf << EOF
+    cat > $CONF_PATH/supervisord/ttyd.conf << 'EOF'
 [program:ttyd]
 stdout_logfile=/tmp/ttyd.log
 redirect_stderr=true
@@ -83,32 +83,15 @@ else
     echo "root:$PASSWD" | chpasswd
 
     if ! getent passwd $UNAME > /dev/null; then
-        if [ ! -d "/home/$UNAME" ]; then
-            useradd -m -s /bin/bash -G root,sudo $UNAME
-        else
-            useradd -M -s /bin/bash -G root,sudo $UNAME
-        fi
-        chmod 700 /home/$UNAME
-        echo "$UNAME ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$UNAME
+        [ -d "/home/$UNAME" ] || useradd -m -s /bin/bash -G root,sudo $UNAME || useradd -M -s /bin/bash -G root,sudo $UNAME && chmod 700 /home/$UNAME
+        [ -f "/home/$UNAME/.bashrc" ] || echo "[ -f \"$BASHRC\" ] && . $BASHRC" > /home/$UNAME/.bashrc || grep -qF "[ -f \"$BASHRC\" ] && . $BASHRC" /home/$UNAME/.bashrc || echo "[ -f \"$BASHRC\" ] && . $BASHRC" >> /home/$UNAME/.bashrc
+        echo "$UNAME ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$UNAME && chmod 440 /etc/sudoers.d/$UNAME
         echo "$UNAME:$PASSWD" | chpasswd
-        if [ ! -f "/home/$UNAME/.bashrc" ]; then
-            echo "[ -f \"$BASHRC\" ] && . $BASHRC" > /home/$UNAME/.bashrc
-        else
-            grep -qF "[ -f \"$BASHRC\" ] && . $BASHRC" /home/$UNAME/.bashrc || echo "[ -f \"$BASHRC\" ] && . $BASHRC" >> /home/$UNAME/.bashrc
-        fi
     fi
 
     if [ -n "$RSA" ]; then
-        if [ ! -d "/home/$UNAME/.ssh" ]; then
-            mkdir -p /home/$UNAME/.ssh
-            chmod 700 /home/$UNAME/.ssh
-            chown $UNAME:$UNAME /home/$UNAME/.ssh
-        fi
-        if [ ! -f "/home/$UNAME/.ssh/authorized_keys" ]; then
-            touch /home/$UNAME/.ssh/authorized_keys
-            chmod 600 /home/$UNAME/.ssh/authorized_keys
-            chown $UNAME:$UNAME /home/$UNAME/.ssh/authorized_keys
-        fi
+        [ ! -d "/home/$UNAME/.ssh" ] && mkdir -p /home/$UNAME/.ssh && chmod 700 /home/$UNAME/.ssh && chown $UNAME:$UNAME /home/$UNAME/.ssh
+        [ ! -f "/home/$UNAME/.ssh/authorized_keys" ] && touch /home/$UNAME/.ssh/authorized_keys && chmod 600 /home/$UNAME/.ssh/authorized_keys && chown $UNAME:$UNAME /home/$UNAME/.ssh/authorized_keys
         grep -qF "$RSA" /home/$UNAME/.ssh/authorized_keys || echo "$RSA" >> /home/$UNAME/.ssh/authorized_keys
     fi
 
